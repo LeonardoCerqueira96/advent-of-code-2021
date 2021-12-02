@@ -7,6 +7,7 @@ use std::time::Instant;
 
 #[derive(Debug)]
 struct Submarine {
+    aim: i64,
     depth: u64,
     horizontal_position: u64,
 }
@@ -21,16 +22,32 @@ enum SubMovement {
 impl Submarine {
     fn new() -> Self {
         Submarine {
+            aim: 0,
             depth: 0,
             horizontal_position: 0,
         }
     }
 
-    fn maneuver(&mut self, movement: &SubMovement) {
+    fn maneuver_part1(&mut self, movement: &SubMovement) {
         match movement {
             SubMovement::Forward(d) => self.horizontal_position += d,
             SubMovement::Up(d) => self.depth = self.depth.saturating_sub(*d),
             SubMovement::Down(d) => self.depth += d,
+        }
+    }
+
+    fn maneuver_part2(&mut self, movement: &SubMovement) {
+        match movement {
+            SubMovement::Forward(d) => {
+                self.horizontal_position += d;
+                self.depth = if self.aim.is_positive() {
+                    self.depth + *d * (self.aim as u64)
+                } else {
+                    self.depth.saturating_sub(*d * (self.aim as u64))
+                }
+            }
+            SubMovement::Up(d) => self.aim -= *d as i64,
+            SubMovement::Down(d) => self.aim += *d as i64,
         }
     }
 }
@@ -77,15 +94,10 @@ where
     Ok(movements)
 }
 
-fn part1(sub: &mut Submarine, movements: &[SubMovement]) {
-    for movement in movements {
-        sub.maneuver(movement);
-    }
-}
-
 fn main() -> Result<(), Box<dyn Error>> {
-    // Instantiate our submarine
-    let mut sub = Submarine::new();
+    // Instantiate our submarines
+    let mut sub1 = Submarine::new();
+    let mut sub2 = Submarine::new();
 
     // Parse the input and time it
     let t0 = Instant::now();
@@ -94,8 +106,17 @@ fn main() -> Result<(), Box<dyn Error>> {
 
     // Compute part 1 and time it
     let t1 = Instant::now();
-    part1(&mut sub, &movements);
+    for movement in &movements {
+        sub1.maneuver_part1(movement);
+    }
     let part1_time = t1.elapsed();
+
+    // Compute part 2 and time it
+    let t2 = Instant::now();
+    for movement in &movements {
+        sub2.maneuver_part2(movement);
+    }
+    let part2_time = t2.elapsed();
 
     // Print results
     let parse_time = parse_time.as_secs() as f64 + parse_time.subsec_nanos() as f64 * 1e-9;
@@ -105,8 +126,16 @@ fn main() -> Result<(), Box<dyn Error>> {
     println!(
         "Part 1:\nTook {}s\nSub position: {:?}\nMultiplied: {}\n",
         part1_time,
-        sub,
-        sub.depth * sub.horizontal_position
+        sub1,
+        sub1.depth * sub1.horizontal_position
+    );
+
+    let part2_time = part2_time.as_secs() as f64 + part2_time.subsec_nanos() as f64 * 1e-9;
+    println!(
+        "Part 2:\nTook {}s\nSub position: {:?}\nMultiplied: {}\n",
+        part2_time,
+        sub2,
+        sub2.depth * sub2.horizontal_position
     );
 
     Ok(())
