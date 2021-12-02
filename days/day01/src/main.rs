@@ -48,7 +48,7 @@ fn part2(depths: &[u32]) -> u32 {
 
     let mut window_iter = depths.windows(window_size);
     let mut prev_window = window_iter.next().unwrap();
-    while let Some(window) = window_iter.next() {
+    for window in window_iter {
         let prev_sum: u32 = prev_window.iter().sum();
         let next_sum: u32 = window.iter().sum();
 
@@ -83,10 +83,16 @@ fn main() -> Result<(), Box<dyn Error>> {
     println!("Parsing the input took {}s\n", parse_time);
 
     let part1_time = part1_time.as_secs() as f64 + part1_time.subsec_nanos() as f64 * 1e-9;
-    println!("Part 1:\nTook {}s\nDepth increased {} times\n", part1_time, n_increases_part1);
+    println!(
+        "Part 1:\nTook {}s\nDepth increased {} times\n",
+        part1_time, n_increases_part1
+    );
 
     let part2_time = part2_time.as_secs() as f64 + part2_time.subsec_nanos() as f64 * 1e-9;
-    println!("Part 2:\nTook {}s\nDepth increased {} times\n", part2_time, n_increases_part2);
+    println!(
+        "Part 2:\nTook {}s\nDepth increased {} times\n",
+        part2_time, n_increases_part2
+    );
 
     Ok(())
 }
