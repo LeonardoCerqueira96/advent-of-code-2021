@@ -2,4 +2,5 @@
 
 members = [
     "days/day01",
+    "days/day02",
 ]
