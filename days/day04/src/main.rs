@@ -54,9 +54,7 @@ impl BingoBoard {
     }
 
     fn iter_ncolumn(&self, column_index: usize) -> impl Iterator<Item = &BoardSquare> {
-        let column: Vec<&BoardSquare> = self.numbers.iter().map(|r| &r[column_index]).collect();
-
-        column.into_iter()
+        self.numbers.iter().map(move |r| &r[column_index])
     }
 
     fn mark_ball(&mut self, ball: u8) -> Option<(usize, usize)> {
@@ -130,7 +128,9 @@ impl BingoCaller {
     }
 }
 
-fn parse_input<T>(filename: T) -> io::Result<(Vec<u8>, Vec<Vec<Vec<u8>>>)>
+type ParserResult = io::Result<(Vec<u8>, Vec<Vec<Vec<u8>>>)>;
+
+fn parse_input<T>(filename: T) -> ParserResult
 where
     T: AsRef<Path>,
 {
@@ -156,7 +156,7 @@ where
         let line = line_result?;
 
         // If it's an empty line, it means we're going to start reading a new board
-        if line.len() == 0 {
+        if line.is_empty() {
             boards.push(Vec::new());
             continue;
         }
@@ -178,7 +178,7 @@ where
 fn part1(draw_sequence: &[u8], raw_boards: &[Vec<Vec<u8>>]) -> (u8, usize, usize) {
     // Build our objects
     let mut boards = Vec::new();
-    for (i, raw_board) in raw_boards.into_iter().enumerate() {
+    for (i, raw_board) in raw_boards.iter().enumerate() {
         boards.push(BingoBoard::new(i, raw_board.to_vec()));
     }
 
@@ -214,7 +214,7 @@ fn part1(draw_sequence: &[u8], raw_boards: &[Vec<Vec<u8>>]) -> (u8, usize, usize
 fn part2(draw_sequence: &[u8], raw_boards: &[Vec<Vec<u8>>]) -> (u8, usize, usize) {
     // Build our objects
     let mut boards = Vec::new();
-    for (i, raw_board) in raw_boards.into_iter().enumerate() {
+    for (i, raw_board) in raw_boards.iter().enumerate() {
         boards.push(BingoBoard::new(i, raw_board.to_vec()));
     }
 
