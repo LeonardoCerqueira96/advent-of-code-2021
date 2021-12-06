@@ -99,7 +99,7 @@ fn main() -> Result<(), Box<dyn Error>> {
 
     let part2_time = part2_time.as_secs() as f64 + part2_time.subsec_nanos() as f64 * 1e-9;
     println!(
-        "Part 2:\nTook {}s\nShoal size after 80 days: {}\n",
+        "Part 2:\nTook {}s\nShoal size after 256 days: {}\n",
         part2_time, shoal_size_part2
     );
 
