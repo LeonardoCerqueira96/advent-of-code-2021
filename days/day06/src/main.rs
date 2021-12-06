@@ -47,15 +47,13 @@ where
     // There's only one line in the file
     let cycles_str = match input_buf.lines().next() {
         Some(line_result) => line_result?,
-        None => return Err(io::Error::new(io::ErrorKind::Other, "File is empty"))
+        None => return Err(io::Error::new(io::ErrorKind::Other, "File is empty")),
     };
 
     // Parse cycles
     let cycles: Vec<u8> = cycles_str
         .split(',')
-        .map(|a| {
-            a.parse::<u8>().unwrap()
-        })
+        .map(|a| a.parse::<u8>().unwrap())
         .collect();
 
     for cycle in cycles {
