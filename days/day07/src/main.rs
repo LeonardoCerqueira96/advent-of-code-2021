@@ -29,22 +29,18 @@ where
 }
 
 fn calc_fuel_constant(positions: &[usize], final_position: usize) -> usize {
-    positions
-        .iter()
-        .fold(0, |acc, pos| { 
-            let diff = (*pos as isize) - (final_position as isize);
-            acc + (diff.abs() as usize)
-        })
+    positions.iter().fold(0, |acc, pos| {
+        let diff = (*pos as isize) - (final_position as isize);
+        acc + (diff.abs() as usize)
+    })
 }
 
 fn calc_fuel_variable(positions: &[usize], final_position: usize) -> usize {
-    positions
-        .iter()
-        .fold(0, |acc, pos| { 
-            let diff = (*pos as isize) - (final_position as isize);
-            let fuel_cost = (1..=(diff.abs() as usize)).sum::<usize>();
-            acc + fuel_cost
-        })
+    positions.iter().fold(0, |acc, pos| {
+        let diff = (*pos as isize) - (final_position as isize);
+        let fuel_cost = (1..=(diff.abs() as usize)).sum::<usize>();
+        acc + fuel_cost
+    })
 }
 
 fn part1(positions: &[usize]) -> (usize, usize) {
