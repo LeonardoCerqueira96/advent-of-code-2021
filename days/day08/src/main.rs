@@ -103,11 +103,10 @@ fn get_translator(signal_patterns: &[String]) -> PatternTranslator {
         .collect();
 
     // Get all patterns with 5 segments (2, 3 and 5)
-    let patterns_5_segments: Vec<String> = signal_patterns
+    let patterns_5_segments = signal_patterns
         .iter()
         .filter(|&s| s.len() == 5)
-        .map(|s| s.to_string())
-        .collect();
+        .map(|s| s.to_string());
 
     // The segment corresponding to signal `a` can be deduced by the difference between digits 1 and 7
     let segment_signal_a = get_pattern_difference(&digit_7_pattern, &digit_1_pattern)[0];
@@ -162,14 +161,12 @@ fn get_translator(signal_patterns: &[String]) -> PatternTranslator {
 
     // Determine what the patterns for 2, 3 and 5 are by the numbers of unmmapped signals we ge on the difference with pattern 8
     let mut patterns_5_segments_ord: Vec<String> = patterns_5_segments
-        .into_iter()
         .sorted_by_key(|p| {
             let diff = get_pattern_difference(&digit_8_pattern, p);
-            let unknown_signals_count = diff
+            diff
                 .into_iter()
                 .filter(|c| !signal_map.contains_key(c))
-                .count();
-            unknown_signals_count
+                .count()
         })
         .collect();
 
@@ -188,8 +185,7 @@ fn get_translator(signal_patterns: &[String]) -> PatternTranslator {
     // The segment corresponding to signal `g` is the only one left
     let segment_signal_g = digit_8_pattern
         .chars()
-        .filter(|c| !signal_map.contains_key(c))
-        .next()
+        .find(|c| !signal_map.contains_key(c))
         .unwrap();
     signal_map.insert(segment_signal_g, 'g');
 
@@ -208,10 +204,10 @@ fn get_translator(signal_patterns: &[String]) -> PatternTranslator {
 }
 
 fn part1(all_output_digits: &[Vec<String>]) -> usize {
-    all_output_digits.into_iter().fold(0, |acc, output_digits| {
+    all_output_digits.iter().fold(0, |acc, output_digits| {
         // Calculate number of 1, 4, 7 and 8 digits
         let num_1478_digits = output_digits
-            .into_iter()
+            .iter()
             .filter(|&p| {
                 p.len() == 2    // Digit 1
                     || p.len() == 4 // Digit 4
@@ -226,12 +222,12 @@ fn part1(all_output_digits: &[Vec<String>]) -> usize {
 
 fn part2(all_signal_patterns: &[Vec<String>], all_output_digits: &[Vec<String>]) -> usize {
     all_signal_patterns
-        .into_iter()
+        .iter()
         .zip(all_output_digits)
         .fold(0, |acc, (patterns, numbers)| {
             let translate = get_translator(patterns);
             let number = numbers
-                .into_iter()
+                .iter()
                 .map(|p| translate(p))
                 .collect::<String>()
                 .parse::<usize>()
