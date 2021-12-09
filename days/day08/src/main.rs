@@ -255,17 +255,17 @@ fn main() -> Result<(), Box<dyn Error>> {
 
     // Print results
     let parse_time = parse_time.as_secs() as f64 + parse_time.subsec_nanos() as f64 * 1e-9;
-    println!("Parsing the input took {}s\n", parse_time);
+    println!("Parsing the input took {:.9}s\n", parse_time);
 
     let part1_time = part1_time.as_secs() as f64 + part1_time.subsec_nanos() as f64 * 1e-9;
     println!(
-        "Part 1:\nTook {}s\nNumber of 1, 4, 7 and 8 digits: {}\n",
+        "Part 1:\nTook {:.9}s\nNumber of 1, 4, 7 and 8 digits: {}\n",
         part1_time, num_1478_digits
     );
 
     let part2_time = part2_time.as_secs() as f64 + part2_time.subsec_nanos() as f64 * 1e-9;
     println!(
-        "Part 2:\nTook {}s\nSum of all the numbers: {}\n",
+        "Part 2:\nTook {:.9}s\nSum of all the numbers: {}\n",
         part2_time, numbers_sum
     );
 

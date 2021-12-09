@@ -152,11 +152,11 @@ fn main() -> Result<(), Box<dyn Error>> {
 
     // Print results
     let parse_time = parse_time.as_secs() as f64 + parse_time.subsec_nanos() as f64 * 1e-9;
-    println!("Parsing the input took {}s\n", parse_time);
+    println!("Parsing the input took {:.9}s\n", parse_time);
 
     let part1_time = part1_time.as_secs() as f64 + part1_time.subsec_nanos() as f64 * 1e-9;
     println!(
-        "Part 1:\nTook {}s\nGamma rate: {}\nEpsilon rate: {}\nMultiplied: {}\n",
+        "Part 1:\nTook {:.9}s\nGamma rate: {}\nEpsilon rate: {}\nMultiplied: {}\n",
         part1_time,
         gamma,
         epsilon,
@@ -165,7 +165,7 @@ fn main() -> Result<(), Box<dyn Error>> {
 
     let part2_time = part2_time.as_secs() as f64 + part2_time.subsec_nanos() as f64 * 1e-9;
     println!(
-        "Part 2:\nTook {}s\nOxygen Generator Rating: {}\nCO2 Scrubber Rating: {}\nLife Support Rating: {}\n",
+        "Part 2:\nTook {:.9}s\nOxygen Generator Rating: {}\nCO2 Scrubber Rating: {}\nLife Support Rating: {}\n",
         part2_time,
         oxygen_generator_rating,
         co2_scrubber_rating,

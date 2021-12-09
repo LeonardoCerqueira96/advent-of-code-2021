@@ -80,17 +80,17 @@ fn main() -> Result<(), Box<dyn Error>> {
 
     // Print results
     let parse_time = parse_time.as_secs() as f64 + parse_time.subsec_nanos() as f64 * 1e-9;
-    println!("Parsing the input took {}s\n", parse_time);
+    println!("Parsing the input took {:.9}s\n", parse_time);
 
     let part1_time = part1_time.as_secs() as f64 + part1_time.subsec_nanos() as f64 * 1e-9;
     println!(
-        "Part 1:\nTook {}s\nDepth increased {} times\n",
+        "Part 1:\nTook {:.9}s\nDepth increased {} times\n",
         part1_time, n_increases_part1
     );
 
     let part2_time = part2_time.as_secs() as f64 + part2_time.subsec_nanos() as f64 * 1e-9;
     println!(
-        "Part 2:\nTook {}s\nDepth increased {} times\n",
+        "Part 2:\nTook {:.9}s\nDepth increased {} times\n",
         part2_time, n_increases_part2
     );
 
