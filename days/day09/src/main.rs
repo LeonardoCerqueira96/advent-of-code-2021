@@ -78,8 +78,7 @@ impl HeightMap {
         // Each low point has a basin
         for low_point in self.get_low_points() {
             // List the basin points to not repeat lookup
-            let mut basin_points = Vec::new();
-            basin_points.push(low_point);
+            let mut basin_points = vec![low_point];
 
             // Setup lookup stack
             let mut lookup_stack = LinkedList::new();
@@ -176,7 +175,7 @@ fn part2(height_map: &HeightMap) -> usize {
     let mut basin_sizes = height_map.get_basin_sizes();
     basin_sizes.sort_by_key(|b| usize::MAX - *b);
 
-    basin_sizes.into_iter().take(3).fold(1, |acc, b| acc * b)
+    basin_sizes.into_iter().take(3).product()
 }
 
 fn main() -> Result<(), Box<dyn Error>> {
