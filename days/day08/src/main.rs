@@ -163,8 +163,7 @@ fn get_translator(signal_patterns: &[String]) -> PatternTranslator {
     let mut patterns_5_segments_ord: Vec<String> = patterns_5_segments
         .sorted_by_key(|p| {
             let diff = get_pattern_difference(&digit_8_pattern, p);
-            diff
-                .into_iter()
+            diff.into_iter()
                 .filter(|c| !signal_map.contains_key(c))
                 .count()
         })

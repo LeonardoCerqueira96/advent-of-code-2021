@@ -15,11 +15,7 @@ struct HeightPoint {
 
 impl HeightPoint {
     fn new(row: usize, col: usize, height: u8) -> Self {
-        HeightPoint {
-            row,
-            col,
-            height,
-        }
+        HeightPoint { row, col, height }
     }
 }
 
@@ -49,7 +45,7 @@ impl HeightMap {
         }
         let nrows = points.len();
 
-        HeightMap { 
+        HeightMap {
             points,
             nrows,
             ncols,
@@ -65,7 +61,7 @@ impl HeightMap {
                     || (j < (self.ncols-1) && point.height >= self.points[i][j+1].height)   // Height to the right is lower or equal
                     || (i > 0 && point.height >= self.points[i-1][j].height)                // Height above is lower or equal
                     || (i < (self.nrows-1) && point.height >= self.points[i+1][j].height)   // Height below is lower or equal
-                {    
+                {
                     continue;
                 }
 
@@ -78,60 +74,59 @@ impl HeightMap {
 
     fn get_basin_sizes(&self) -> Vec<usize> {
         let mut basin_sizes = Vec::new();
-        
+
         // Each low point has a basin
         for low_point in self.get_low_points() {
             // List the basin points to not repeat lookup
             let mut basin_points = Vec::new();
             basin_points.push(low_point);
-            
+
             // Setup lookup stack
             let mut lookup_stack = LinkedList::new();
             lookup_stack.push_back(low_point);
 
             while let Some(point) = lookup_stack.pop_back() {
-                
                 // Check point to the left
-                if point.col > 0 && 
-                    self.points[point.row][point.col-1].height < 9 &&
-                    self.points[point.row][point.col-1].height > point.height
+                if point.col > 0
+                    && self.points[point.row][point.col - 1].height < 9
+                    && self.points[point.row][point.col - 1].height > point.height
                 {
-                    if !basin_points.contains(&&self.points[point.row][point.col-1]) {
-                        basin_points.push(&self.points[point.row][point.col-1]);
-                        lookup_stack.push_back(&self.points[point.row][point.col-1]);
+                    if !basin_points.contains(&&self.points[point.row][point.col - 1]) {
+                        basin_points.push(&self.points[point.row][point.col - 1]);
+                        lookup_stack.push_back(&self.points[point.row][point.col - 1]);
                     }
                 }
 
                 // Check point to the right
-                if point.col < self.ncols-1 && 
-                    self.points[point.row][point.col+1].height < 9 &&
-                    self.points[point.row][point.col+1].height > point.height
+                if point.col < self.ncols - 1
+                    && self.points[point.row][point.col + 1].height < 9
+                    && self.points[point.row][point.col + 1].height > point.height
                 {
-                    if !basin_points.contains(&&self.points[point.row][point.col+1]) {
-                        basin_points.push(&self.points[point.row][point.col+1]);
-                        lookup_stack.push_back(&self.points[point.row][point.col+1]);
+                    if !basin_points.contains(&&self.points[point.row][point.col + 1]) {
+                        basin_points.push(&self.points[point.row][point.col + 1]);
+                        lookup_stack.push_back(&self.points[point.row][point.col + 1]);
                     }
                 }
 
                 // Check point above
-                if point.row > 0 && 
-                    self.points[point.row-1][point.col].height < 9 &&
-                    self.points[point.row-1][point.col].height > point.height
+                if point.row > 0
+                    && self.points[point.row - 1][point.col].height < 9
+                    && self.points[point.row - 1][point.col].height > point.height
                 {
-                    if !basin_points.contains(&&self.points[point.row-1][point.col]) {
-                        basin_points.push(&self.points[point.row-1][point.col]);
-                        lookup_stack.push_back(&self.points[point.row-1][point.col]);
+                    if !basin_points.contains(&&self.points[point.row - 1][point.col]) {
+                        basin_points.push(&self.points[point.row - 1][point.col]);
+                        lookup_stack.push_back(&self.points[point.row - 1][point.col]);
                     }
                 }
 
                 // Check point below
-                if point.row < self.nrows-1 && 
-                    self.points[point.row+1][point.col].height < 9 &&
-                    self.points[point.row+1][point.col].height > point.height
+                if point.row < self.nrows - 1
+                    && self.points[point.row + 1][point.col].height < 9
+                    && self.points[point.row + 1][point.col].height > point.height
                 {
-                    if !basin_points.contains(&&self.points[point.row+1][point.col]) {
-                        basin_points.push(&self.points[point.row+1][point.col]);
-                        lookup_stack.push_back(&self.points[point.row+1][point.col]);   
+                    if !basin_points.contains(&&self.points[point.row + 1][point.col]) {
+                        basin_points.push(&self.points[point.row + 1][point.col]);
+                        lookup_stack.push_back(&self.points[point.row + 1][point.col]);
                     }
                 }
             }
@@ -158,19 +153,21 @@ where
         let line = line_result?;
 
         // Each char is a height value
-        let height_row: Vec<u8> = line.chars()
+        let height_row: Vec<u8> = line
+            .chars()
             .map(|c| c.to_digit(10).unwrap() as u8)
             .collect();
 
         heights.push(height_row);
     }
-    
+
     Ok(HeightMap::new(heights))
 }
 
 fn part1(height_map: &HeightMap) -> usize {
     // Sum riks levels for all low points
-    height_map.get_low_points()
+    height_map
+        .get_low_points()
         .into_iter()
         .fold(0, |acc, low_point| acc + (low_point.height as usize) + 1)
 }
@@ -179,9 +176,7 @@ fn part2(height_map: &HeightMap) -> usize {
     let mut basin_sizes = height_map.get_basin_sizes();
     basin_sizes.sort_by_key(|b| usize::MAX - *b);
 
-    basin_sizes.into_iter()
-        .take(3)
-        .fold(1, |acc, b| acc * b)
+    basin_sizes.into_iter().take(3).fold(1, |acc, b| acc * b)
 }
 
 fn main() -> Result<(), Box<dyn Error>> {
