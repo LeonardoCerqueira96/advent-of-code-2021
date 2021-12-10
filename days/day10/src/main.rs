@@ -41,12 +41,12 @@ where
 fn part1(syntax_lines: &[Vec<char>]) -> usize {
     // Score for part 1
     let mut syntax_error_score = 0;
-    
+
     for syntax_line in syntax_lines {
         let mut syntax_stack = LinkedList::new();
         for character in syntax_line {
             match *character {
-                // Opening characters 
+                // Opening characters
                 '(' => syntax_stack.push_back('('),
                 '[' => syntax_stack.push_back('['),
                 '{' => syntax_stack.push_back('{'),
@@ -59,28 +59,28 @@ fn part1(syntax_lines: &[Vec<char>]) -> usize {
                         syntax_error_score += ILLEGAL_PARENTHESIS_SCORE;
                         break;
                     }
-                },
+                }
                 ']' => {
                     let stack_top = syntax_stack.pop_back().unwrap();
                     if stack_top != '[' {
                         syntax_error_score += ILLEGAL_SQUARE_BRACKET_SCORE;
                         break;
                     }
-                },
+                }
                 '}' => {
                     let stack_top = syntax_stack.pop_back().unwrap();
                     if stack_top != '{' {
                         syntax_error_score += ILLEGAL_BRACE_SCORE;
                         break;
                     }
-                },
+                }
                 '>' => {
                     let stack_top = syntax_stack.pop_back().unwrap();
                     if stack_top != '<' {
                         syntax_error_score += ILLEGAL_ANGLED_BRACKET_SCORE;
                         break;
                     }
-                },
+                }
 
                 c => panic!("Invalid character '{}'", c),
             };
@@ -92,13 +92,13 @@ fn part1(syntax_lines: &[Vec<char>]) -> usize {
 
 fn part2(syntax_lines: &[Vec<char>]) -> usize {
     // Score for part 1
-    let mut completion_scores = Vec::new(); 
-    
+    let mut completion_scores = Vec::new();
+
     for syntax_line in syntax_lines {
         let mut syntax_stack = LinkedList::new();
         for character in syntax_line {
             match *character {
-                // Opening characters 
+                // Opening characters
                 '(' => syntax_stack.push_back('('),
                 '[' => syntax_stack.push_back('['),
                 '{' => syntax_stack.push_back('{'),
@@ -111,28 +111,28 @@ fn part2(syntax_lines: &[Vec<char>]) -> usize {
                         syntax_stack.clear();
                         break;
                     }
-                },
+                }
                 ']' => {
                     let stack_top = syntax_stack.pop_back().unwrap();
                     if stack_top != '[' {
                         syntax_stack.clear();
                         break;
                     }
-                },
+                }
                 '}' => {
                     let stack_top = syntax_stack.pop_back().unwrap();
                     if stack_top != '{' {
                         syntax_stack.clear();
                         break;
                     }
-                },
+                }
                 '>' => {
                     let stack_top = syntax_stack.pop_back().unwrap();
                     if stack_top != '<' {
                         syntax_stack.clear();
                         break;
                     }
-                },
+                }
 
                 c => panic!("Invalid character '{}'", c),
             };

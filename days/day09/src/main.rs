@@ -60,7 +60,8 @@ impl HeightMap {
                 if (j > 0 && point.height >= self.points[i][j-1].height)                    // Height to the left is lower or equal
                     || (j < (self.ncols-1) && point.height >= self.points[i][j+1].height)   // Height to the right is lower or equal
                     || (i > 0 && point.height >= self.points[i-1][j].height)                // Height above is lower or equal
-                    || (i < (self.nrows-1) && point.height >= self.points[i+1][j].height)   // Height below is lower or equal
+                    || (i < (self.nrows-1) && point.height >= self.points[i+1][j].height)
+                // Height below is lower or equal
                 {
                     continue;
                 }
