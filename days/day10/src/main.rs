@@ -156,7 +156,7 @@ fn part2(syntax_lines: &[Vec<char>]) -> usize {
         completion_scores.push(completion_score);
     }
 
-    completion_scores.sort();
+    completion_scores.sort_unstable();
     completion_scores[completion_scores.len() / 2]
 }
 
