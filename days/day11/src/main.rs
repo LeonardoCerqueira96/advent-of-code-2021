@@ -158,7 +158,7 @@ where
             row?.chars()
                 .map(|lvl| {
                     lvl.to_digit(10)
-                        .ok_or(io::Error::new(
+                        .ok_or_else(|| io::Error::new(
                             io::ErrorKind::Other,
                             format!("Invalid digit {}", lvl),
                         ))
