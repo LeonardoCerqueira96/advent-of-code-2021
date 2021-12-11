@@ -38,8 +38,7 @@ impl Consortium {
             .into_iter()
             .enumerate()
             .map(|(i, row)| {
-                row
-                    .into_iter()
+                row.into_iter()
                     .enumerate()
                     .map(|(j, energy_level)| DumboOctopus::new(i, j, energy_level))
                     .collect()
@@ -55,7 +54,7 @@ impl Consortium {
 
     fn step(&mut self) -> usize {
         let mut flash_stack = LinkedList::new();
-        
+
         // Increase all energy levels
         for row in &mut self.octopi {
             for octopus in row {
@@ -78,10 +77,11 @@ impl Consortium {
                 .iter_mut()
                 .flatten()
                 .filter(|oct| {
-
                     (oct.row != octopus_pos.0 || oct.col != octopus_pos.1)
-                        && (oct.row >= octopus_pos.0.saturating_sub(1) && oct.row <= octopus_pos.0 + 1)
-                        && (oct.col >= octopus_pos.1.saturating_sub(1) && oct.col <= octopus_pos.1 + 1)
+                        && (oct.row >= octopus_pos.0.saturating_sub(1)
+                            && oct.row <= octopus_pos.0 + 1)
+                        && (oct.col >= octopus_pos.1.saturating_sub(1)
+                            && oct.col <= octopus_pos.1 + 1)
                 })
                 .for_each(|oct| {
                     // Increase energy levels of adjacent octopi (if they haven't flashed)
@@ -95,7 +95,7 @@ impl Consortium {
                     }
                 });
         }
-        
+
         nflashes
     }
 
@@ -106,7 +106,7 @@ impl Consortium {
             .all(|oct| oct.energy_level == 0)
     }
 
-    fn simulate(&mut self, steps: usize) -> usize {     
+    fn simulate(&mut self, steps: usize) -> usize {
         let mut nflashes = 0;
         for _i in 1..=steps {
             nflashes += self.step();
@@ -128,18 +128,18 @@ impl Consortium {
 
 impl std::fmt::Display for Consortium {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        let consortium_str = self.octopi
+        let consortium_str = self
+            .octopi
             .iter()
             .map(|row| {
-                row
-                    .iter()
+                row.iter()
                     .map(|oct| oct.energy_level.to_string())
                     .collect::<Vec<String>>()
                     .join("")
             })
             .collect::<Vec<String>>()
             .join("\n");
-        
+
         write!(f, "{}", consortium_str)
     }
 }
@@ -155,12 +155,13 @@ where
     let energy_levels: io::Result<Vec<Vec<usize>>> = input_buf
         .lines()
         .map(|row| {
-            row?
-                .chars()
-                .map(|lvl| { 
-                    lvl
-                        .to_digit(10)
-                        .ok_or(io::Error::new(io::ErrorKind::Other, format!("Invalid digit {}", lvl)))
+            row?.chars()
+                .map(|lvl| {
+                    lvl.to_digit(10)
+                        .ok_or(io::Error::new(
+                            io::ErrorKind::Other,
+                            format!("Invalid digit {}", lvl),
+                        ))
                         .map(|d| d as usize)
                 })
                 .collect()
