@@ -1,5 +1,5 @@
 use std::cell::RefCell;
-use std::collections::{LinkedList, HashMap};
+use std::collections::{HashMap, LinkedList};
 use std::error::Error;
 use std::fs::File;
 use std::io;
@@ -34,7 +34,7 @@ impl FromStr for Cave {
                 } else {
                     Err(())
                 }
-            },
+            }
         }
     }
 }
@@ -42,7 +42,7 @@ impl FromStr for Cave {
 #[derive(Debug)]
 struct CaveNode {
     cave: Cave,
-    connections: Vec<Rc<RefCell<CaveNode>>>
+    connections: Vec<Rc<RefCell<CaveNode>>>,
 }
 
 impl CaveNode {
@@ -67,10 +67,7 @@ struct CaveSystem {
 type PathList = Vec<Vec<Rc<RefCell<CaveNode>>>>;
 impl CaveSystem {
     fn new(start: Rc<RefCell<CaveNode>>, end: Rc<RefCell<CaveNode>>) -> Self {
-        CaveSystem {
-            start,
-            end,
-        }
+        CaveSystem { start, end }
     }
 
     fn find_duplicate(caves: &[String]) -> Option<String> {
@@ -86,14 +83,14 @@ impl CaveSystem {
 
         None
     }
-    
+
     fn get_all_paths(&self) -> PathList {
         let mut complete_paths_list = PathList::new();
-        
+
         let mut path_stack = LinkedList::new();
         path_stack.push_back(vec![Rc::clone(&self.start)]);
 
-        while let Some(path) = path_stack.pop_back() {          
+        while let Some(path) = path_stack.pop_back() {
             // If the path is complete, add it to the list and get the next one
             if let Cave::End = path.last().unwrap().borrow().cave {
                 complete_paths_list.push(path.clone());
@@ -114,7 +111,7 @@ impl CaveSystem {
                 if let Cave::Start = &connection.borrow().cave {
                     continue;
                 }
-                
+
                 // If this is a small cave, check if it was visited in this path before
                 if let Cave::Small(name) = &connection.borrow().cave {
                     if small_caves_visited.contains(name) {
@@ -136,11 +133,11 @@ impl CaveSystem {
 
     fn get_all_paths_extra_time(&self) -> PathList {
         let mut complete_paths_list = PathList::new();
-        
+
         let mut path_stack = LinkedList::new();
         path_stack.push_back(vec![Rc::clone(&self.start)]);
 
-        while let Some(path) = path_stack.pop_back() {          
+        while let Some(path) = path_stack.pop_back() {
             // If the path is complete, add it to the list and get the next one
             if let Cave::End = path.last().unwrap().borrow().cave {
                 complete_paths_list.push(path.clone());
@@ -164,7 +161,7 @@ impl CaveSystem {
                 if let Cave::Start = &connection.borrow().cave {
                     continue;
                 }
-                
+
                 // If this is a small cave, check if it was visited in this path before
                 if let Cave::Small(name) = &connection.borrow().cave {
                     if small_caves_visited.contains(name) {
@@ -226,18 +223,25 @@ where
         let cave_node1;
         let cave_node2;
         {
-            let cave_entry1 = node_map.entry(cave1_str.to_string()).or_insert(Rc::new(RefCell::new(CaveNode::new(cave1))));
+            let cave_entry1 = node_map
+                .entry(cave1_str.to_string())
+                .or_insert(Rc::new(RefCell::new(CaveNode::new(cave1))));
             cave_node1 = Rc::clone(cave_entry1);
         }
         {
-            let cave_entry2 = node_map.entry(cave2_str.to_string()).or_insert(Rc::new(RefCell::new(CaveNode::new(cave2))));
+            let cave_entry2 = node_map
+                .entry(cave2_str.to_string())
+                .or_insert(Rc::new(RefCell::new(CaveNode::new(cave2))));
             cave_node2 = Rc::clone(cave_entry2);
         }
 
-        cave_node1.borrow_mut().add_connection(Rc::clone(&cave_node2));
-        cave_node2.borrow_mut().add_connection(Rc::clone(&cave_node1));
+        cave_node1
+            .borrow_mut()
+            .add_connection(Rc::clone(&cave_node2));
+        cave_node2
+            .borrow_mut()
+            .add_connection(Rc::clone(&cave_node1));
     }
-
 
     let start_node = Rc::clone(node_map.get("start").unwrap());
     let end_node = Rc::clone(node_map.get("end").unwrap());
