@@ -225,13 +225,13 @@ where
         {
             let cave_entry1 = node_map
                 .entry(cave1_str.to_string())
-                .or_insert(Rc::new(RefCell::new(CaveNode::new(cave1))));
+                .or_insert_with(|| Rc::new(RefCell::new(CaveNode::new(cave1))));
             cave_node1 = Rc::clone(cave_entry1);
         }
         {
             let cave_entry2 = node_map
                 .entry(cave2_str.to_string())
-                .or_insert(Rc::new(RefCell::new(CaveNode::new(cave2))));
+                .or_insert_with(|| Rc::new(RefCell::new(CaveNode::new(cave2))));
             cave_node2 = Rc::clone(cave_entry2);
         }
 
