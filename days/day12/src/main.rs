@@ -29,7 +29,7 @@ impl FromStr for Cave {
                     // All lowercase means it's a small cave
                     Ok(Self::Small(name.to_string()))
                 } else if name.chars().all(|c| c.is_ascii_uppercase()) {
-                    // All uppercase means it's a small cave
+                    // All uppercase means it's a big cave
                     Ok(Self::Big(name.to_string()))
                 } else {
                     Err(())
