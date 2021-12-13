@@ -16,18 +16,18 @@ enum FoldInstruction {
 
 impl FromStr for FoldInstruction {
     type Err = ();
-    
+
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         let split: Vec<&str> = s.split('=').take(2).collect();
         let pos: usize = match split[1].parse() {
             Ok(n) => n,
-            _ => return Err(())
+            _ => return Err(()),
         };
 
         match split[0] {
             "x" => Ok(Self::Horizontal(pos)),
             "y" => Ok(Self::Vertical(pos)),
-            _ => Err(())
+            _ => Err(()),
         }
     }
 }
@@ -52,12 +52,9 @@ struct TransparentPaper {
 
 impl TransparentPaper {
     fn new(dimension_x: usize, dimension_y: usize, dots_pos: Vec<(usize, usize)>) -> Self {
-        let dots = dots_pos
-            .into_iter()
-            .map(|t| Dot::new(t.0, t.1))
-            .collect();
+        let dots = dots_pos.into_iter().map(|t| Dot::new(t.0, t.1)).collect();
 
-        TransparentPaper { 
+        TransparentPaper {
             dimension_x,
             dimension_y,
             dots,
@@ -66,19 +63,17 @@ impl TransparentPaper {
 
     fn fold_horizontally(&mut self, line: usize) {
         let mut new_dot_set = HashSet::new();
-        
-        // Mirror the dots to the right of the fold line
-        self.dots
-            .iter()
-            .for_each(|dot| {
-                if dot.pos_x < line {
-                    new_dot_set.insert(dot.clone());
-                    return;
-                }
 
-                let distance_x = dot.pos_x - line;
-                new_dot_set.insert(Dot::new(line - distance_x, dot.pos_y));
-            });
+        // Mirror the dots to the right of the fold line
+        self.dots.iter().for_each(|dot| {
+            if dot.pos_x < line {
+                new_dot_set.insert(dot.clone());
+                return;
+            }
+
+            let distance_x = dot.pos_x - line;
+            new_dot_set.insert(Dot::new(line - distance_x, dot.pos_y));
+        });
 
         self.dots = new_dot_set;
         self.dimension_x = line;
@@ -86,19 +81,17 @@ impl TransparentPaper {
 
     fn fold_vertically(&mut self, line: usize) {
         let mut new_dot_set = HashSet::new();
-        
-        // Mirror the dots below the fold line
-        self.dots
-            .iter()
-            .for_each(|dot| {
-                if dot.pos_y < line {
-                    new_dot_set.insert(dot.clone());
-                    return;
-                }
 
-                let distance_y = dot.pos_y - line;
-                new_dot_set.insert(Dot::new(dot.pos_x, line - distance_y));
-            });
+        // Mirror the dots below the fold line
+        self.dots.iter().for_each(|dot| {
+            if dot.pos_y < line {
+                new_dot_set.insert(dot.clone());
+                return;
+            }
+
+            let distance_y = dot.pos_y - line;
+            new_dot_set.insert(Dot::new(dot.pos_x, line - distance_y));
+        });
 
         self.dots = new_dot_set;
         self.dimension_y = line;
@@ -113,7 +106,7 @@ impl TransparentPaper {
 }
 
 impl Display for TransparentPaper {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result { 
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         let mut paper = vec![vec!['.'; self.dimension_x]; self.dimension_y];
         for dot in &self.dots {
             paper[dot.pos_y][dot.pos_x] = '#';
@@ -175,15 +168,12 @@ where
             break;
         }
 
-        let instruction_str = line
-            .split_ascii_whitespace()
-            .nth(2)
-            .unwrap();
+        let instruction_str = line.split_ascii_whitespace().nth(2).unwrap();
 
         instructions.push(FoldInstruction::from_str(instruction_str).unwrap());
     }
 
-    let paper = TransparentPaper::new(max_x+1, max_y+1, dots_pos);
+    let paper = TransparentPaper::new(max_x + 1, max_y + 1, dots_pos);
     Ok((paper, instructions))
 }
 
