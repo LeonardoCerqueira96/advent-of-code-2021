@@ -107,7 +107,7 @@ impl TransparentPaper {
 
 impl Display for TransparentPaper {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        let mut paper = vec![vec!['.'; self.dimension_x]; self.dimension_y];
+        let mut paper = vec![vec![' '; self.dimension_x]; self.dimension_y];
         for dot in &self.dots {
             paper[dot.pos_y][dot.pos_x] = '#';
         }
