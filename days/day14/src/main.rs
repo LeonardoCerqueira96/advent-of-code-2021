@@ -16,15 +16,15 @@ struct Polymerizer {
 impl Polymerizer {
     fn new(initial_polymer: String, raw_rules: Vec<(String, char)>) -> Self {
         let polymer_pairs = initial_polymer
-        .chars()
-        .collect::<Vec<char>>()
-        .windows(2)
-        .fold(HashMap::new(), |mut hm, p| {
-            let pair = String::from_iter(p);
-            *hm.entry(pair).or_insert(0) += 1;
-            hm
-        });
-        
+            .chars()
+            .collect::<Vec<char>>()
+            .windows(2)
+            .fold(HashMap::new(), |mut hm, p| {
+                let pair = String::from_iter(p);
+                *hm.entry(pair).or_insert(0) += 1;
+                hm
+            });
+
         let element_frequency = initial_polymer.chars().fold(HashMap::new(), |mut hm, c| {
             *hm.entry(c).or_insert(0) += 1;
             hm
@@ -35,7 +35,11 @@ impl Polymerizer {
             hm
         });
 
-        Polymerizer { polymer_pairs, element_frequency, rules }
+        Polymerizer {
+            polymer_pairs,
+            element_frequency,
+            rules,
+        }
     }
 
     fn step(&mut self) {
@@ -47,8 +51,9 @@ impl Polymerizer {
             }
 
             // Separate the elements of each pair
-            let first_elem = pair.chars().nth(0).unwrap();
-            let second_elem = pair.chars().nth(1).unwrap();
+            let mut chars_iter = pair.chars();
+            let first_elem = chars_iter.next().unwrap();
+            let second_elem = chars_iter.next().unwrap();
 
             // Get the new element from the rule table
             let new_elem = *self.rules.get(pair).unwrap();
@@ -89,7 +94,7 @@ where
             let r = r.unwrap();
             let fields: Vec<&str> = r.split("->").map(|f| f.trim()).take(2).collect();
             let left_side = fields[0].to_string();
-            let right_side = fields[1].chars().nth(0).unwrap();
+            let right_side = fields[1].chars().next().unwrap();
 
             (left_side, right_side)
         })
@@ -103,8 +108,16 @@ fn part1(mut polymerizer: Polymerizer) -> usize {
         polymerizer.step();
     }
 
-    let max_freq = polymerizer.element_frequency.iter().max_by_key(|f| f.1).unwrap();
-    let min_freq = polymerizer.element_frequency.iter().min_by_key(|f| f.1).unwrap();
+    let max_freq = polymerizer
+        .element_frequency
+        .iter()
+        .max_by_key(|f| f.1)
+        .unwrap();
+    let min_freq = polymerizer
+        .element_frequency
+        .iter()
+        .min_by_key(|f| f.1)
+        .unwrap();
 
     max_freq.1 - min_freq.1
 }
@@ -114,13 +127,21 @@ fn part2(mut polymerizer: Polymerizer) -> usize {
         polymerizer.step();
     }
 
-    let max_freq = polymerizer.element_frequency.iter().max_by_key(|f| f.1).unwrap();
-    let min_freq = polymerizer.element_frequency.iter().min_by_key(|f| f.1).unwrap();
+    let max_freq = polymerizer
+        .element_frequency
+        .iter()
+        .max_by_key(|f| f.1)
+        .unwrap();
+    let min_freq = polymerizer
+        .element_frequency
+        .iter()
+        .min_by_key(|f| f.1)
+        .unwrap();
 
     max_freq.1 - min_freq.1
 }
 
-fn main() -> Result<(), Box<dyn Error>>{
+fn main() -> Result<(), Box<dyn Error>> {
     // Parse the input and time it
     let t0 = Instant::now();
     let polymerizer = parse_input("inputs/day14")?;
