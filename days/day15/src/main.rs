@@ -184,11 +184,7 @@ impl Cave {
             }
         }
 
-        // No path was found (should never happen)
-        if final_path_node.is_none() {
-            return None;
-        }
-        let mut path_node = &final_path_node.unwrap();
+        let mut path_node = &final_path_node?;
 
         // Save total risk cost of the path
         let path_risk_cost = path_node.total_risk;
