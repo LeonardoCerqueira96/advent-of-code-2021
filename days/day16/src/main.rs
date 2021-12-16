@@ -47,9 +47,35 @@ impl FromStr for SubPackageSize {
 }
 
 #[derive(Debug)]
+enum Operation {
+    Sum,
+    Product,
+    Minimum,
+    Maximum,
+    GreaterThan,
+    LesserThan,
+    Equal,
+}
+
+impl From<u8> for Operation {
+    fn from(v: u8) -> Self {
+        match v {
+            0 => Self::Sum,
+            1 => Self::Product,
+            2 => Self::Minimum,
+            3 => Self::Maximum,
+            5 => Self::GreaterThan,
+            6 => Self::LesserThan,
+            7 => Self::Equal,
+            _ => panic!("Invalid operation ID: {}", v),
+        }
+    }
+}
+
+#[derive(Debug)]
 enum PacketType {
     Literal(usize),
-    Operator(Vec<Packet>),
+    Operator((Vec<Packet>, Operation)),
 }
 
 #[derive(Debug)]
@@ -107,7 +133,7 @@ impl Packet {
 
                 Box::new(PacketType::Literal(value))
             }
-            _op_type => {
+            op_type => {
                 // Operator packet
                 let packet_size = SubPackageSize::from_str(&bin_str[index..])?;
                 let packets = match packet_size {
@@ -134,7 +160,9 @@ impl Packet {
                     }
                 };
 
-                Box::new(PacketType::Operator(packets))
+                let operation = Operation::from(op_type);
+
+                Box::new(PacketType::Operator((packets, operation)))
             }
         };
 
@@ -150,9 +178,66 @@ impl Packet {
     fn get_version_sum(&self) -> usize {
         self.version as usize
             + match self.package_type.as_ref() {
-                PacketType::Operator(packets) => packets.iter().map(|p| p.get_version_sum()).sum(),
+                PacketType::Operator((packets, _)) => packets.iter().map(|p| p.get_version_sum()).sum(),
                 PacketType::Literal(_) => 0,
             }
+    }
+
+    fn get_result(&self) -> Result<usize, String> {
+        match self.package_type.as_ref() {
+            PacketType::Literal(value) => Ok(*value),
+            PacketType::Operator((packets, operation)) => {
+                match operation {
+                    Operation::Sum => {
+                        packets.iter().map(|p| p.get_result()).sum()
+                    },
+                    Operation::Product => {
+                        packets.iter().map(|p| p.get_result()).product()
+                    },
+                    Operation::Minimum => {
+                        packets.iter().map(|p| p.get_result()).min()
+                            .ok_or(format!("Operator packet has no subpackets"))?
+                    },
+                    Operation::Maximum => {
+                        packets.iter().map(|p| p.get_result()).max()
+                            .ok_or(format!("Operator packet has no subpackets"))?
+                    },
+                    Operation::GreaterThan => {
+                        if packets.len() != 2 {
+                            return Err(format!("Greater than operation is only valid between two packets, but got {}", packets.len()));
+                        }
+
+                        if packets[0].get_result() > packets[1].get_result() {
+                            Ok(1)
+                        } else {
+                            Ok(0)
+                        }
+                    },
+                    Operation::LesserThan => {
+                        if packets.len() != 2 {
+                            return Err(format!("Lesser than operation is only valid between two packets, but got {}", packets.len()));
+                        }
+
+                        if packets[0].get_result() < packets[1].get_result() {
+                            Ok(1)
+                        } else {
+                            Ok(0)
+                        }
+                    },
+                    Operation::Equal => {
+                        if packets.len() != 2 {
+                            return Err(format!("Equal than operation is only valid between two packets, but got {}", packets.len()));
+                        }
+
+                        if packets[0].get_result() == packets[1].get_result() {
+                            Ok(1)
+                        } else {
+                            Ok(0)
+                        }
+                    },
+                }
+            },
+        }
     }
 }
 
@@ -186,6 +271,10 @@ fn part1(packet: &Packet) -> usize {
     packet.get_version_sum()
 }
 
+fn part2(packet: &Packet) -> Result<usize, String> {
+    packet.get_result()
+}
+
 fn main() -> Result<(), Box<dyn Error>> {
     // Parse the input and time it
     let t0 = Instant::now();
@@ -197,6 +286,11 @@ fn main() -> Result<(), Box<dyn Error>> {
     let version_sum = part1(&packet);
     let part1_time = t1.elapsed();
 
+    // Compute part 1 and time it
+    let t2 = Instant::now();
+    let result = part2(&packet)?;
+    let part2_time = t2.elapsed();
+
     // Print results
     let parse_time = parse_time.as_secs() as f64 + parse_time.subsec_nanos() as f64 * 1e-9;
     println!("Parsing the input took {:.9}s\n", parse_time);
@@ -205,6 +299,12 @@ fn main() -> Result<(), Box<dyn Error>> {
     println!(
         "Part 1:\nTook {:.9}s\nVersion sum: {}\n",
         part1_time, version_sum
+    );
+
+    let part2_time = part2_time.as_secs() as f64 + part2_time.subsec_nanos() as f64 * 1e-9;
+    println!(
+        "Part 2:\nTook {:.9}s\nOperation result: {}\n",
+        part2_time, result
     );
 
     Ok(())
