@@ -178,7 +178,9 @@ impl Packet {
     fn get_version_sum(&self) -> usize {
         self.version as usize
             + match self.package_type.as_ref() {
-                PacketType::Operator((packets, _)) => packets.iter().map(|p| p.get_version_sum()).sum(),
+                PacketType::Operator((packets, _)) => {
+                    packets.iter().map(|p| p.get_version_sum()).sum()
+                }
                 PacketType::Literal(_) => 0,
             }
     }
@@ -188,20 +190,18 @@ impl Packet {
             PacketType::Literal(value) => Ok(*value),
             PacketType::Operator((packets, operation)) => {
                 match operation {
-                    Operation::Sum => {
-                        packets.iter().map(|p| p.get_result()).sum()
-                    },
-                    Operation::Product => {
-                        packets.iter().map(|p| p.get_result()).product()
-                    },
-                    Operation::Minimum => {
-                        packets.iter().map(|p| p.get_result()).min()
-                            .ok_or(format!("Operator packet has no subpackets"))?
-                    },
-                    Operation::Maximum => {
-                        packets.iter().map(|p| p.get_result()).max()
-                            .ok_or(format!("Operator packet has no subpackets"))?
-                    },
+                    Operation::Sum => packets.iter().map(|p| p.get_result()).sum(),
+                    Operation::Product => packets.iter().map(|p| p.get_result()).product(),
+                    Operation::Minimum => packets
+                        .iter()
+                        .map(|p| p.get_result())
+                        .min()
+                        .ok_or(format!("Operator packet has no subpackets"))?,
+                    Operation::Maximum => packets
+                        .iter()
+                        .map(|p| p.get_result())
+                        .max()
+                        .ok_or(format!("Operator packet has no subpackets"))?,
                     Operation::GreaterThan => {
                         if packets.len() != 2 {
                             return Err(format!("Greater than operation is only valid between two packets, but got {}", packets.len()));
@@ -212,7 +212,7 @@ impl Packet {
                         } else {
                             Ok(0)
                         }
-                    },
+                    }
                     Operation::LesserThan => {
                         if packets.len() != 2 {
                             return Err(format!("Lesser than operation is only valid between two packets, but got {}", packets.len()));
@@ -223,7 +223,7 @@ impl Packet {
                         } else {
                             Ok(0)
                         }
-                    },
+                    }
                     Operation::Equal => {
                         if packets.len() != 2 {
                             return Err(format!("Equal than operation is only valid between two packets, but got {}", packets.len()));
@@ -234,9 +234,9 @@ impl Packet {
                         } else {
                             Ok(0)
                         }
-                    },
+                    }
                 }
-            },
+            }
         }
     }
 }
