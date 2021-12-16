@@ -18,7 +18,7 @@ impl FromStr for SubPackageSize {
         let length_type_id = s
             .get(0..1)
             .map(|r| u8::from_str_radix(r, 2).map_err(|e| format!("Invalid length type ID: {}", e)))
-            .ok_or(format!("Failed to extract range 0..1 from string"))??;
+            .ok_or_else(|| "Failed to extract range 0..1 from string".to_string())??;
 
         match length_type_id {
             0 => {
@@ -27,7 +27,7 @@ impl FromStr for SubPackageSize {
                     .map(|r| {
                         usize::from_str_radix(r, 2).map_err(|e| format!("Invalid length: {}", e))
                     })
-                    .ok_or(format!("Failed to extract range 1..16 from string"))??;
+                    .ok_or_else(|| "Failed to extract range 1..16 from string".to_string())??;
 
                 Ok(Self::Bits(bits))
             }
@@ -37,7 +37,7 @@ impl FromStr for SubPackageSize {
                     .map(|r| {
                         usize::from_str_radix(r, 2).map_err(|e| format!("Invalid count: {}", e))
                     })
-                    .ok_or(format!("Failed to extract range 1..12 from string"))??;
+                    .ok_or_else(|| "Failed to extract range 1..12 from string".to_string())??;
 
                 Ok(Self::Count(count))
             }
@@ -196,12 +196,12 @@ impl Packet {
                         .iter()
                         .map(|p| p.get_result())
                         .min()
-                        .ok_or(format!("Operator packet has no subpackets"))?,
+                        .ok_or_else(|| "Operator packet has no subpackets".to_string())?,
                     Operation::Maximum => packets
                         .iter()
                         .map(|p| p.get_result())
                         .max()
-                        .ok_or(format!("Operator packet has no subpackets"))?,
+                        .ok_or_else(|| "Operator packet has no subpackets".to_string())?,
                     Operation::GreaterThan => {
                         if packets.len() != 2 {
                             return Err(format!("Greater than operation is only valid between two packets, but got {}", packets.len()));
