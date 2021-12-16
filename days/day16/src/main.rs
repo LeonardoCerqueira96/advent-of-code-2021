@@ -15,21 +15,28 @@ impl FromStr for SubPackageSize {
     type Err = String;
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
-        let length_type_id = s.get(0..1)
+        let length_type_id = s
+            .get(0..1)
             .map(|r| u8::from_str_radix(r, 2).map_err(|e| format!("Invalid length type ID: {}", e)))
             .ok_or(format!("Failed to extract range 0..1 from string"))??;
 
         match length_type_id {
             0 => {
-                let bits = s.get(1..16)
-                    .map(|r| usize::from_str_radix(r, 2).map_err(|e| format!("Invalid length: {}", e)))
+                let bits = s
+                    .get(1..16)
+                    .map(|r| {
+                        usize::from_str_radix(r, 2).map_err(|e| format!("Invalid length: {}", e))
+                    })
                     .ok_or(format!("Failed to extract range 1..16 from string"))??;
 
                 Ok(Self::Bits(bits))
-            },
+            }
             1 => {
-                let count = s.get(1..12)
-                    .map(|r| usize::from_str_radix(r, 2).map_err(|e| format!("Invalid count: {}", e)))
+                let count = s
+                    .get(1..12)
+                    .map(|r| {
+                        usize::from_str_radix(r, 2).map_err(|e| format!("Invalid count: {}", e))
+                    })
                     .ok_or(format!("Failed to extract range 1..12 from string"))??;
 
                 Ok(Self::Count(count))
@@ -59,24 +66,33 @@ impl Packet {
 
         // Parse version
         let version = bin_str
-            .get(index..index+3)
+            .get(index..index + 3)
             .map(|r| u8::from_str_radix(r, 2).map_err(|e| format!("Invalid version: {}", e)))
-            .ok_or(format!("Failed to extract range {}..{} from binary", index, index+3))??;
+            .ok_or(format!(
+                "Failed to extract range {}..{} from binary",
+                index,
+                index + 3
+            ))??;
         index += 3;
 
         // Parse type ID
         let packet_type_id = bin_str
-            .get(index..index+3)
+            .get(index..index + 3)
             .map(|r| u8::from_str_radix(r, 2).map_err(|e| format!("Invalid packet type ID: {}", e)))
-            .ok_or(format!("Failed to extract range {}..{} from binary", index, index+3))??;
+            .ok_or(format!(
+                "Failed to extract range {}..{} from binary",
+                index,
+                index + 3
+            ))??;
         index += 3;
 
         let package_type = match packet_type_id {
-            4 => { // Literal packet
+            4 => {
+                // Literal packet
                 let mut value_str = String::new();
 
                 // Read groups of 5 bits
-                while let Some(group) = bin_str.get(index..index+5) {
+                while let Some(group) = bin_str.get(index..index + 5) {
                     value_str.push_str(&group[1..]);
                     index += 5;
 
@@ -90,8 +106,9 @@ impl Packet {
                     .map_err(|e| format!("Invalid literal: {}", e))?;
 
                 Box::new(PacketType::Literal(value))
-            },
-            _op_type => { // Operator packet
+            }
+            _op_type => {
+                // Operator packet
                 let packet_size = SubPackageSize::from_str(&bin_str[index..])?;
                 let packets = match packet_size {
                     SubPackageSize::Bits(bits) => {
@@ -114,23 +131,28 @@ impl Packet {
 
                             Result::<_, String>::Ok(packets)
                         })?
-                    },
+                    }
                 };
-                
-                Box::new(PacketType::Operator(packets))
-            },
-        };  
 
-        Ok((Packet { version, package_type }, index))
+                Box::new(PacketType::Operator(packets))
+            }
+        };
+
+        Ok((
+            Packet {
+                version,
+                package_type,
+            },
+            index,
+        ))
     }
 
     fn get_version_sum(&self) -> usize {
-        self.version as usize + match self.package_type.as_ref() {
-            PacketType::Operator(packets) => {
-                packets.iter().map(|p| p.get_version_sum()).sum()
-            },
-            PacketType::Literal(_) => 0,
-        }
+        self.version as usize
+            + match self.package_type.as_ref() {
+                PacketType::Operator(packets) => packets.iter().map(|p| p.get_version_sum()).sum(),
+                PacketType::Literal(_) => 0,
+            }
     }
 }
 
@@ -150,13 +172,12 @@ where
     let binary_string = hex_string
         .trim()
         .chars()
-        .map(|c| {
-            format!("{:04b}", c.to_digit(16).unwrap())
-        })
+        .map(|c| format!("{:04b}", c.to_digit(16).unwrap()))
         .collect::<Vec<String>>()
         .join("");
 
-    let (packet, _) = Packet::from_str(&binary_string).map_err(|e| io::Error::new(io::ErrorKind::Other, e))?;
+    let (packet, _) =
+        Packet::from_str(&binary_string).map_err(|e| io::Error::new(io::ErrorKind::Other, e))?;
 
     Ok(packet)
 }
@@ -185,7 +206,6 @@ fn main() -> Result<(), Box<dyn Error>> {
         "Part 1:\nTook {:.9}s\nVersion sum: {}\n",
         part1_time, version_sum
     );
-
 
     Ok(())
 }
