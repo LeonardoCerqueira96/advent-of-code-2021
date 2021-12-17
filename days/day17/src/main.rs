@@ -86,7 +86,7 @@ fn get_min_x_velocity(target_x1: isize) -> isize {
 fn get_max_y_velocity_and_peak(target_y: (isize, isize)) -> (isize, isize) {
     let mut max_vy = 0;
     let mut highest_peak = 0;
-    
+
     for vy_it in 0..=target_y.0.abs() {
         let mut pos_y = 0;
         let mut curr_highest_peak = 0;
@@ -98,7 +98,7 @@ fn get_max_y_velocity_and_peak(target_y: (isize, isize)) -> (isize, isize) {
         while !hit_target && !overshot_target {
             pos_y += vy;
             vy -= 1;
-            
+
             if pos_y > curr_highest_peak {
                 curr_highest_peak = pos_y;
             }
@@ -134,12 +134,12 @@ fn get_all_possible_velocities(target: TargetArea) -> Vec<(isize, isize)> {
             while !hit_target && !overshot_target {
                 pos_x += xv;
                 pos_y += yv;
-                
+
                 if xv.signum() != 0 {
                     xv = (xv.abs() - 1) * xv.signum();
                 }
                 yv -= 1;
-    
+
                 hit_target = (pos_x >= target_x.0 && pos_x <= target_x.1)
                     && (pos_y >= target_y.0 && pos_y <= target_y.1);
                 overshot_target = pos_y < target_y.0 || pos_x > target_x.1;
@@ -166,7 +166,6 @@ fn part2(target: TargetArea) -> usize {
 
     hit_velocities.len()
 }
-
 
 fn main() -> Result<(), Box<dyn Error>> {
     // Parse the input and time it
