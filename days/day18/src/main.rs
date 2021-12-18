@@ -75,9 +75,7 @@ impl Add for SnailfishNumber {
 impl Sum for SnailfishNumber {
     fn sum<I: Iterator<Item = Self>>(mut iter: I) -> Self {
         let first_num = iter.next().unwrap();
-        let sum = iter.fold(first_num, |acc, sfn| acc + sfn);
-
-        sum
+        iter.fold(first_num, |acc, sfn| acc + sfn)
     }
 }
 
