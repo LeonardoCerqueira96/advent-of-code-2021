@@ -37,11 +37,16 @@ impl FromStr for SnailfishNumber {
             match c {
                 '[' => depth += 1,
                 ']' => depth -= 1,
-                num if num.is_digit(10) => parts.push(SnailFishPart::new(num.to_digit(10).ok_or(format!("Unable to convert digit: {}", num))? as usize , depth)),
+                num if num.is_digit(10) => parts.push(SnailFishPart::new(
+                    num.to_digit(10)
+                        .ok_or(format!("Unable to convert digit: {}", num))?
+                        as usize,
+                    depth,
+                )),
                 _ => (),
             }
         }
-        
+
         Ok(Self { parts })
     }
 }
@@ -59,7 +64,7 @@ impl AddAssign for SnailfishNumber {
 
 impl Add for SnailfishNumber {
     type Output = Self;
-    
+
     fn add(self, rhs: Self) -> Self::Output {
         let mut new_num = self;
         new_num += rhs;
@@ -70,9 +75,7 @@ impl Add for SnailfishNumber {
 impl Sum for SnailfishNumber {
     fn sum<I: Iterator<Item = Self>>(mut iter: I) -> Self {
         let first_num = iter.next().unwrap();
-        let sum = iter.fold(first_num, |acc, sfn| {
-            acc + sfn
-        });
+        let sum = iter.fold(first_num, |acc, sfn| acc + sfn);
 
         sum
     }
@@ -84,17 +87,30 @@ impl SnailfishNumber {
     }
 
     fn explode(&mut self) -> bool {
-        for (i, (&SnailFishPart { value: value1, depth: depth1 }, &SnailFishPart { value: value2, depth: depth2})) in self.parts.iter().tuple_windows().enumerate() {
+        for (
+            i,
+            (
+                &SnailFishPart {
+                    value: value1,
+                    depth: depth1,
+                },
+                &SnailFishPart {
+                    value: value2,
+                    depth: depth2,
+                },
+            ),
+        ) in self.parts.iter().tuple_windows().enumerate()
+        {
             if depth1 == 5 && depth2 == 5 {
                 if self.parts.get(i.saturating_sub(1)).is_some() && i.saturating_sub(1) != i {
-                    self.parts.get_mut(i-1).unwrap().value += value1;
+                    self.parts.get_mut(i - 1).unwrap().value += value1;
                 }
 
-                if self.parts.get(i+2).is_some() {
-                    self.parts.get_mut(i+2).unwrap().value += value2;
+                if self.parts.get(i + 2).is_some() {
+                    self.parts.get_mut(i + 2).unwrap().value += value2;
                 }
-    
-                self.parts.drain(i..i+2);
+
+                self.parts.drain(i..i + 2);
                 self.parts.insert(i, SnailFishPart::new(0, 4));
                 return true;
             }
@@ -102,14 +118,16 @@ impl SnailfishNumber {
 
         false
     }
-    
+
     fn split(&mut self) -> bool {
         for (i, part) in self.parts.iter().enumerate() {
             if part.value > 9 {
                 let (value, depth) = (part.value, part.depth);
                 self.parts.remove(i);
-                self.parts.insert(i, SnailFishPart::new(value/2, depth+1));
-                self.parts.insert(i+1, SnailFishPart::new((value+1)/2, depth+1));
+                self.parts
+                    .insert(i, SnailFishPart::new(value / 2, depth + 1));
+                self.parts
+                    .insert(i + 1, SnailFishPart::new((value + 1) / 2, depth + 1));
 
                 return true;
             }
@@ -130,8 +148,8 @@ impl SnailfishNumber {
     fn magnitude_rec(&mut self, depth: usize) -> bool {
         for (i, (part1, part2)) in self.parts.iter().tuple_windows().enumerate() {
             if part1.depth == depth && part2.depth == depth {
-                self.parts[i] = SnailFishPart::new(3*part1.value + 2*part2.value, depth-1);
-                self.parts.remove(i+1);
+                self.parts[i] = SnailFishPart::new(3 * part1.value + 2 * part2.value, depth - 1);
+                self.parts.remove(i + 1);
                 return true;
             }
         }
@@ -145,7 +163,7 @@ where
     T: AsRef<Path>,
 {
     let mut numbers = Vec::new();
-    
+
     // Open input file
     let input = File::open(filename)?;
     let input_buf = BufReader::new(input);
