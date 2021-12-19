@@ -75,7 +75,7 @@ where
         let beacon = Vector3::from_iterator(
             line.split(',')
                 .take(3)
-                .map(|v| v.parse::<isize>().expect(&format!("Invalid number: {}", v))),
+                .map(|v| v.parse::<isize>().unwrap_or_else(|e| panic!("Invalid number {}: {}", v, e)))
         );
         curr_scan_vec.push(beacon);
     }
