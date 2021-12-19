@@ -5,131 +5,35 @@ use std::io::{BufRead, BufReader};
 use std::path::Path;
 use std::time::Instant;
 
+use fxhash::FxHashSet;
 use itertools::Itertools;
 use nalgebra::{Matrix3, Vector3};
-use fxhash::FxHashSet;
 
 static CHANGE_OF_BASIS_MATRIXES: [Matrix3<isize>; 24] = [
-    Matrix3::new(
-        1,  0,  0,
-        0,  1,  0,
-        0,  0,  1,
-    ),
-    Matrix3::new(
-        1,  0,  0,
-        0, -1,  0,
-        0,  0, -1,
-    ),
-    Matrix3::new(
-        1,  0,  0,
-        0,  0, -1,
-        0,  1,  0,
-    ),
-    Matrix3::new(
-        1,  0,  0,
-        0,  0,  1,
-        0, -1,  0,
-    ),
-    Matrix3::new(
-       -1,  0,  0,
-        0, -1,  0,
-        0,  0,  1,
-    ),
-    Matrix3::new(
-       -1,  0,  0,
-        0,  1,  0,
-        0,  0, -1,
-    ),
-    Matrix3::new(
-       -1,  0,  0,
-        0,  0,  1,
-        0,  1,  0,
-    ),
-    Matrix3::new(
-       -1,  0,  0,
-        0,  0, -1,
-        0, -1,  0,
-    ),
-    Matrix3::new(
-        0, -1,  0,
-        1,  0,  0,
-        0,  0,  1,
-    ),
-    Matrix3::new(
-        0,  1,  0,
-        1,  0,  0,
-        0,  0, -1,
-    ),
-    Matrix3::new(
-        0,  0,  1,
-        1,  0,  0,
-        0,  1,  0,
-    ),
-    Matrix3::new(
-        0,  0, -1,
-        1,  0,  0,
-        0, -1,  0,
-    ),
-    Matrix3::new(
-        0,  1,  0,
-       -1,  0,  0,
-        0,  0,  1,
-    ),
-    Matrix3::new(
-        0, -1,  0,
-       -1,  0,  0,
-        0,  0, -1,
-    ),
-    Matrix3::new(
-        0,  0, -1,
-       -1,  0,  0,
-        0,  1,  0,
-    ),
-    Matrix3::new(
-        0,  0,  1,
-       -1,  0,  0,
-        0, -1,  0,
-    ),
-    Matrix3::new(
-        0,  0, -1,
-        0,  1,  0,
-        1,  0,  0,
-    ),
-    Matrix3::new(
-        0,  0,  1,
-        0, -1,  0,
-        1,  0,  0,
-    ),
-    Matrix3::new(
-        0,  1,  0,
-        0,  0,  1,
-        1,  0,  0,
-    ),
-    Matrix3::new(
-        0, -1,  0,
-        0,  0, -1,
-        1,  0,  0,
-    ),
-    Matrix3::new(
-        0,  0,  1,
-        0,  1,  0,
-       -1,  0,  0,
-    ),
-    Matrix3::new(
-        0,  0, -1,
-        0, -1,  0,
-       -1,  0,  0,
-    ),
-    Matrix3::new(
-        0,  1,  0,
-        0,  0, -1,
-       -1,  0,  0,
-    ),
-    Matrix3::new(
-        0, -1,  0,
-        0,  0,  1,
-       -1,  0,  0,
-    ),
+    Matrix3::new(1, 0, 0, 0, 1, 0, 0, 0, 1),
+    Matrix3::new(1, 0, 0, 0, -1, 0, 0, 0, -1),
+    Matrix3::new(1, 0, 0, 0, 0, -1, 0, 1, 0),
+    Matrix3::new(1, 0, 0, 0, 0, 1, 0, -1, 0),
+    Matrix3::new(-1, 0, 0, 0, -1, 0, 0, 0, 1),
+    Matrix3::new(-1, 0, 0, 0, 1, 0, 0, 0, -1),
+    Matrix3::new(-1, 0, 0, 0, 0, 1, 0, 1, 0),
+    Matrix3::new(-1, 0, 0, 0, 0, -1, 0, -1, 0),
+    Matrix3::new(0, -1, 0, 1, 0, 0, 0, 0, 1),
+    Matrix3::new(0, 1, 0, 1, 0, 0, 0, 0, -1),
+    Matrix3::new(0, 0, 1, 1, 0, 0, 0, 1, 0),
+    Matrix3::new(0, 0, -1, 1, 0, 0, 0, -1, 0),
+    Matrix3::new(0, 1, 0, -1, 0, 0, 0, 0, 1),
+    Matrix3::new(0, -1, 0, -1, 0, 0, 0, 0, -1),
+    Matrix3::new(0, 0, -1, -1, 0, 0, 0, 1, 0),
+    Matrix3::new(0, 0, 1, -1, 0, 0, 0, -1, 0),
+    Matrix3::new(0, 0, -1, 0, 1, 0, 1, 0, 0),
+    Matrix3::new(0, 0, 1, 0, -1, 0, 1, 0, 0),
+    Matrix3::new(0, 1, 0, 0, 0, 1, 1, 0, 0),
+    Matrix3::new(0, -1, 0, 0, 0, -1, 1, 0, 0),
+    Matrix3::new(0, 0, 1, 0, 1, 0, -1, 0, 0),
+    Matrix3::new(0, 0, -1, 0, -1, 0, -1, 0, 0),
+    Matrix3::new(0, 1, 0, 0, 0, -1, -1, 0, 0),
+    Matrix3::new(0, -1, 0, 0, 0, 1, -1, 0, 0),
 ];
 
 #[derive(Debug)]
@@ -159,7 +63,9 @@ where
         // When reading a new scan, save the previous one (if it has content)
         if line.starts_with("---") {
             if !curr_scan_vec.is_empty() {
-                scans.push(Scan { beacons: curr_scan_vec.clone() });
+                scans.push(Scan {
+                    beacons: curr_scan_vec.clone(),
+                });
                 curr_scan_vec.clear();
             }
             continue;
@@ -169,36 +75,43 @@ where
         let beacon = Vector3::from_iterator(
             line.split(',')
                 .take(3)
-                .map(|v| v.parse::<isize>().expect(&format!("Invalid number: {}", v)))
+                .map(|v| v.parse::<isize>().expect(&format!("Invalid number: {}", v))),
         );
         curr_scan_vec.push(beacon);
     }
-    scans.push(Scan { beacons: curr_scan_vec });
+    scans.push(Scan {
+        beacons: curr_scan_vec,
+    });
 
     Ok(scans)
 }
 
-fn try_update_scan(complete_scan: &mut FxHashSet<Vector3<isize>>, scan: &Scan) -> Option<Vector3<isize>> {
+fn try_update_scan(
+    complete_scan: &mut FxHashSet<Vector3<isize>>,
+    scan: &Scan,
+) -> Option<Vector3<isize>> {
     for base_transform_mtx in &CHANGE_OF_BASIS_MATRIXES {
         let beacons = &scan.beacons;
-        
+
         // Transform all the beacon scans into the new base
-        let transformed_beacons = beacons.iter()
-            .map(|b| base_transform_mtx * b )
+        let transformed_beacons = beacons
+            .iter()
+            .map(|b| base_transform_mtx * b)
             .collect::<Vec<_>>();
-        
-        // Build iterator over the distance between all pairs of points    
-        let distances_iter = complete_scan.iter()
+
+        // Build iterator over the distance between all pairs of points
+        let distances_iter = complete_scan
+            .iter()
             .cartesian_product(&transformed_beacons)
-            .map(|(orig, dest)| orig - dest); 
-     
+            .map(|(orig, dest)| orig - dest);
+
         for dist in distances_iter {
             // Translate all beacons scans by this distance
-            let translated_beacons_iter = transformed_beacons.iter()
-                .map(|b| b + dist);
+            let translated_beacons_iter = transformed_beacons.iter().map(|b| b + dist);
 
             // Count overlapping beacons
-            let overlap_count = translated_beacons_iter.clone()
+            let overlap_count = translated_beacons_iter
+                .clone()
                 .filter(|tv| complete_scan.contains(tv))
                 .count();
 
@@ -216,8 +129,10 @@ fn try_update_scan(complete_scan: &mut FxHashSet<Vector3<isize>>, scan: &Scan) -
 // Parts 1 and 2 are computed at the same time
 fn part1_2(mut scans: Vec<Scan>) -> (usize, usize) {
     // Build initial scan set from scanner 0
-    let mut complete_scan = scans.remove(0)
-        .beacons.into_iter()
+    let mut complete_scan = scans
+        .remove(0)
+        .beacons
+        .into_iter()
         .collect::<FxHashSet<Vector3<_>>>();
 
     let mut distances = Vec::new();
@@ -231,16 +146,17 @@ fn part1_2(mut scans: Vec<Scan>) -> (usize, usize) {
         }
     }
 
-    let max_distance = distances.iter()
+    let max_distance = distances
+        .iter()
         .tuple_combinations()
-        .map(|(s1, s2)| (s1 - s2).abs().sum() )
+        .map(|(s1, s2)| (s1 - s2).abs().sum())
         .max()
         .unwrap();
 
     (complete_scan.len(), max_distance as usize)
 }
 
-fn main() ->Result<(), Box<dyn Error>> {
+fn main() -> Result<(), Box<dyn Error>> {
     // Parse the input and time it
     let t0 = Instant::now();
     let scans = parse_input("inputs/day19")?;
