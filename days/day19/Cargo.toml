@@ -1,0 +1,11 @@
+[package]
+name = "day19"
+version = "1.0.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+nalgebra = "0.29.*"
+fxhash = "0.2.*"
+itertools = "0.10.*"
