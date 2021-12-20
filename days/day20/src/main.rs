@@ -1,11 +1,11 @@
 use std::error::Error;
 use std::fmt::Display;
 use std::fs::File;
-use std::{io, panic};
 use std::io::{BufRead, BufReader};
 use std::path::Path;
 use std::str::FromStr;
 use std::time::Instant;
+use std::{io, panic};
 
 #[derive(Debug, Clone, Copy)]
 enum Pixel {
@@ -44,20 +44,22 @@ struct Image {
 
 impl FromStr for Image {
     type Err = String;
-    
+
     fn from_str(s: &str) -> Result<Self, Self::Err> {
-        let pixels = s.lines()
-            .map(|l| {
-                l.chars()
-                    .map(|c| Pixel::from(c))
-                    .collect::<Vec<_>>()             
-            })
+        let pixels = s
+            .lines()
+            .map(|l| l.chars().map(|c| Pixel::from(c)).collect::<Vec<_>>())
             .collect::<Vec<_>>();
 
         let nrows = pixels.len();
         let ncols = pixels[0].len();
 
-        Ok(Self { nrows, ncols, pixels, infinity_pixel: Pixel::Dark })
+        Ok(Self {
+            nrows,
+            ncols,
+            pixels,
+            infinity_pixel: Pixel::Dark,
+        })
     }
 }
 
@@ -65,12 +67,10 @@ impl Display for Image {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         let padded_image = ImageEnhancer::pad(self.clone(), 4);
 
-        let image_str = padded_image.pixels.iter()
-            .map(|r| {
-                r.iter()
-                    .map(|p| p.to_string())
-                    .collect::<String>()
-            })
+        let image_str = padded_image
+            .pixels
+            .iter()
+            .map(|r| r.iter().map(|p| p.to_string()).collect::<String>())
             .collect::<Vec<_>>()
             .join("\n");
 
@@ -98,48 +98,48 @@ impl Image {
 
 #[derive(Debug)]
 struct ImageEnhancer {
-    algorithm: Vec<Pixel>
+    algorithm: Vec<Pixel>,
 }
 
 impl FromStr for ImageEnhancer {
     type Err = String;
-    
-    fn from_str(s: &str) -> Result<Self, Self::Err> {
-        let algorithm = s.chars()
-            .map(|c| Pixel::from(c))
-            .collect::<Vec<_>>();
 
-        Ok(Self{ algorithm })
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        let algorithm = s.chars().map(|c| Pixel::from(c)).collect::<Vec<_>>();
+
+        Ok(Self { algorithm })
     }
 }
 
 impl ImageEnhancer {
     // Pad the image with a layer of dark pixels, 2 pixels wide
     fn pad(image: Image, width: usize) -> Image {
-        let padded_nrows = image.nrows + 2*width;
-        let padded_ncols = image.ncols + 2*width;
+        let padded_nrows = image.nrows + 2 * width;
+        let padded_ncols = image.ncols + 2 * width;
 
         // Top padding = bottom padding
         let top_padding = vec![vec![image.infinity_pixel; padded_ncols]; width];
         let side_padding = vec![image.infinity_pixel; width];
 
         // Pad the sides
-        let padded_sides = image.pixels.into_iter()
+        let padded_sides = image
+            .pixels
+            .into_iter()
             .map(|r| {
                 let mut padded_row = side_padding.clone();
-                
+
                 // Pad left side
                 padded_row.extend(r);
-                
+
                 // Pad right side
                 padded_row.extend(side_padding.clone());
-                
+
                 padded_row
             })
             .collect::<Vec<_>>();
 
         let mut padded_pixels = top_padding.clone();
-        
+
         // Pad the top
         padded_pixels.extend(padded_sides);
 
@@ -147,9 +147,9 @@ impl ImageEnhancer {
         padded_pixels.extend(top_padding);
 
         // Build the new image
-        Image { 
-            nrows: padded_nrows, 
-            ncols: padded_ncols, 
+        Image {
+            nrows: padded_nrows,
+            ncols: padded_ncols,
             pixels: padded_pixels,
             infinity_pixel: image.infinity_pixel,
         }
@@ -196,18 +196,22 @@ where
     let input_buf = BufReader::new(input);
 
     let mut lines_iter = input_buf.lines();
-    
+
     // Build enhancer from first line
-    let first_line = lines_iter.next().ok_or(io::Error::new(io::ErrorKind::InvalidInput, "Empty file"))??;
-    let enhancer = ImageEnhancer::from_str(&first_line).map_err(|e| io::Error::new(io::ErrorKind::InvalidInput, e))?;
-    
+    let first_line = lines_iter
+        .next()
+        .ok_or(io::Error::new(io::ErrorKind::InvalidInput, "Empty file"))??;
+    let enhancer = ImageEnhancer::from_str(&first_line)
+        .map_err(|e| io::Error::new(io::ErrorKind::InvalidInput, e))?;
+
     // Build image from the rest of the lines
     let image_str = lines_iter
         .filter(|l| l.is_ok() && !l.as_ref().unwrap().is_empty())
         .map(|l| l.unwrap())
         .collect::<Vec<_>>()
         .join("\n");
-    let image = Image::from_str(&image_str).map_err(|e| io::Error::new(io::ErrorKind::InvalidInput, e))?;
+    let image =
+        Image::from_str(&image_str).map_err(|e| io::Error::new(io::ErrorKind::InvalidInput, e))?;
 
     Ok((enhancer, image))
 }
