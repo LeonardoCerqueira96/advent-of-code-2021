@@ -48,7 +48,7 @@ impl FromStr for Image {
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         let pixels = s
             .lines()
-            .map(|l| l.chars().map(|c| Pixel::from(c)).collect::<Vec<_>>())
+            .map(|l| l.chars().map(Pixel::from).collect::<Vec<_>>())
             .collect::<Vec<_>>();
 
         let nrows = pixels.len();
@@ -105,7 +105,7 @@ impl FromStr for ImageEnhancer {
     type Err = String;
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
-        let algorithm = s.chars().map(|c| Pixel::from(c)).collect::<Vec<_>>();
+        let algorithm = s.chars().map(Pixel::from).collect::<Vec<_>>();
 
         Ok(Self { algorithm })
     }
@@ -200,7 +200,7 @@ where
     // Build enhancer from first line
     let first_line = lines_iter
         .next()
-        .ok_or(io::Error::new(io::ErrorKind::InvalidInput, "Empty file"))??;
+        .ok_or_else(|| io::Error::new(io::ErrorKind::InvalidInput, "Empty file"))??;
     let enhancer = ImageEnhancer::from_str(&first_line)
         .map_err(|e| io::Error::new(io::ErrorKind::InvalidInput, e))?;
 
