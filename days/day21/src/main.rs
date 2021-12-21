@@ -25,7 +25,7 @@ impl Player {
             if new_pos % 10 == 0 {
                 new_pos = 10;
             } else {
-                new_pos = new_pos % 10;
+                new_pos %= 10;
             }
         }
 
@@ -90,7 +90,7 @@ where
         .next()
         .ok_or_else(|| io::Error::new(io::ErrorKind::InvalidInput, "Input file is empty"))??;
     let first_pos_index = first_player_str
-        .find(":")
+        .find(':')
         .ok_or_else(|| io::Error::new(io::ErrorKind::InvalidInput, "Invalid player input"))?
         + 2;
     let first_player_pos = first_player_str[first_pos_index..]
@@ -108,7 +108,7 @@ where
         .next()
         .ok_or_else(|| io::Error::new(io::ErrorKind::InvalidInput, "No second player found"))??;
     let second_pos_index = second_player_str
-        .find(":")
+        .find(':')
         .ok_or_else(|| io::Error::new(io::ErrorKind::InvalidInput, "Invalid player input"))?
         + 2;
     let second_player_pos = second_player_str[second_pos_index..]
