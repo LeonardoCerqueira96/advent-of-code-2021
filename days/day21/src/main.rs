@@ -126,7 +126,7 @@ where
 
 fn part1(mut player1: Player, mut player2: Player) -> usize {
     let mut die = DeterministicDie::new();
-    
+
     let mut _loser = None;
     loop {
         player1.move_pos(&mut die);
@@ -140,7 +140,7 @@ fn part1(mut player1: Player, mut player2: Player) -> usize {
             _loser = Some(&player1);
             break;
         }
-    };
+    }
 
     let loser = _loser.unwrap();
 
@@ -159,10 +159,12 @@ fn part2(player1: Player, player2: Player) -> usize {
             // Update universes
             let mut new_universes_map = HashMap::new();
             for (players, &count) in universes_map.iter() {
-                let quantum_rolls_iter = itertools::cons_tuples((1..=3).cartesian_product(1..=3).cartesian_product(1..=3));
+                let quantum_rolls_iter = itertools::cons_tuples(
+                    (1..=3).cartesian_product(1..=3).cartesian_product(1..=3),
+                );
                 for (r1, r2, r3) in quantum_rolls_iter {
                     let mut players = players.clone();
-                    
+
                     players[i].position += r1 + r2 + r3;
                     if players[i].position > 10 {
                         players[i].position -= 10;
@@ -180,8 +182,6 @@ fn part2(player1: Player, player2: Player) -> usize {
         }
     }
 
-    println!("{:?}", wins);
-    
     *wins.iter().max().unwrap()
 }
 
